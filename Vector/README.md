@@ -16,16 +16,17 @@ anotherVect = Vect.Scale(anotherVect, 0.5)  -- Result: anotherVect = {1.5, 2, 2.
 
 ### Full interface
 
-| Method(args) | Return type | Return description
-| --- | --- |
+| Method(args) | Return type | Return description |
+| --- | --- | --- |
 | ``Sum (Vector, Vector)`` | ``Vector`` | with matching elements summed |
 | ``Inverse (Vector)`` | ``Vector`` | with each element inversed (1/val) |
 | ``Scale (Vector, Number)`` | ``Vector`` | with all elements multiplied by factor |
 | ``ScaleEach (Vector, Vector)`` | ``Vector`` | with all elements multiplied by matching element from 2nd argument |
 | ``Length (Vector)`` | ``Number`` | length of a vector only considering its 1st and 3rd element (in-plane-length in TTS) |
 | ``RotateRad (Vector, Number)`` | ``Vector`` | rotated by 2nd argument in radians over its second element axis |
-| ``Distance (Vector OR Object, Vector OR Object)`` | ``Number`` | in-plane distance between two Vectors or Objects (works like Length method)
-| Print(Vector, String) | None (console output: vector elements, prefixed by string passed as 2nd argument) |
+| ``Distance (Vector, Vector)`` | ``Number`` | in-plane distance between two Vectors (works like Length method)
+| ``Distance (Object, Object)`` | ``Number`` | in-plane distance between two Objects (works like Length method)
+| ``Print (Vector, String)`` | ``nil`` | Console output: vector elements, prefixed by string passed as 2nd argument |
 | ``DotProd (Vector, Vector)`` | ``Number`` | dot product of two vectors |
 | ``Norm (Vector)`` | ``Number`` | Euclidean norm of a vector |
 | ``ToUnit (Vector)`` | ``Vector`` | scaled to a norm of 1 |
