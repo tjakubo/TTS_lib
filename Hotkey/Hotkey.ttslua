@@ -32,6 +32,20 @@ if not package.loaded['Hotkey'] then
         end
     end
 
+    if package.loaded['EventSub'] then
+        EventSub.Register('onScriptingButtonDown', Hotkey.onScriptingButtonDown)
+        EventSub.Register('onScriptingButtonUp', Hotkey.onScriptingButtonUp)
+    else
+        assert(onScriptingButtonDown == nil, 'Hotkey init: Event onScriptingButtonDown already defined!')
+        function onScriptingButtonDown(...)
+            Hotkey.onScriptingButtonDown(table.unpack({...}))
+        end
+        assert(onScriptingButtonUp == nil, 'Hotkey init: Event onScriptingButtonUp already defined!')
+        function onScriptingButtonUp(...)
+            Hotkey.onScriptingButtonUp(table.unpack({...}))
+        end
+    end
+
     Hotkey.keyCount = 10
 
     Hotkey.PressString = function(combination)
