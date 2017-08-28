@@ -1,7 +1,10 @@
 ## Event subscription handling library
 Provides a very simple and lightweight framework to give scripts access to default events (onLoad, onChat, update etc.) without having one take the control away from other.  
+In simple words, assign as many "handlers" to any default event at any time - in one line.  
 Any parameters present in the event function will be passed to registered handler unchanged.  
-Redefining event functions after this library is included *will silently break the module* (for handling redefined event that is).
+Assigned handlers are permanent, other modules can add their own without any interference at will.  
+
+*Warning:* Redefining event functions after this library is included *will silently break the module* (for redefined event that is).
 
 **Access table:** ``EventSub``, ``event_sub``
 

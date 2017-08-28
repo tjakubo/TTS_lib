@@ -5,7 +5,7 @@ Button combinations are tables with button indexes (numbers, 1-10). Order of pre
 Multiple functions can be bound to the same combination, they are never replaced (can be used safely from many modules).
 Hotkey presses are ignored for spectators.
 
-*Warning:* This library utilizes default scriting button events. If you redefine them between code inclusion and ``Hotkey.Bind`` call, it will silently break. Don't do this or use the EventSub library for sane event hook management.
+*Warning:* This library utilizes default scripting button events. If you redefine them between code inclusion and ``Hotkey.Bind`` call, it will silently break. Don't do this or use the EventSub library for sane event hook management.
 
 **Access table:** ``Hotkey``
 

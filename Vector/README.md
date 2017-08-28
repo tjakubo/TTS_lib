@@ -1,8 +1,9 @@
 ## Vector library
 Allows for vector-like table manipulation.  
-Vector values are keyed with *numbers*, in case of uneven sizes larger vector is treated as having the size of smaller one.    
-While types of input arguments are asserted, values in the vector table are not and invalid vectors can lead to errors.  
-None of the methods modify any of the arguments.
+Vector values are keyed with *numbers*, in case of uneven sizes larger vector is treated as having the size of smaller one.  
+While types of input arguments are asserted, values in the vector table are not checked and invalid vectors can lead to errors.  
+None of the methods modify any of the arguments.  
+Again, STRING KEYS ARE IGNORED. Keep in mind when using with TTS position vectors and such - only use their numeric part then.
 
 **Access table:** ``Vect``
 
