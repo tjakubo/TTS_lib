@@ -10,28 +10,31 @@ if not package.loaded['Hotkey'] then
     Hotkey = {}
     package.loaded['Hotkey'] = Hotkey
 
+    -- Register the press and call any press functions
     Hotkey.onScriptingButtonDown = function(index, playerColor)
         if playerColor ~= 'Grey' then
             Hotkey.PressButton(index, playerColor)
             if Hotkey.map[Hotkey.stateTable[playerColor] .. 'D'] then
-                for _,handler in pairs(Hotkey.map[Hotkey.stateTable[playerColor]]) do
+                for _,handler in pairs(Hotkey.map[Hotkey.stateTable[playerColor] .. 'D']) do
                     handler(playerColor, 'down', index)
                 end
             end
         end
     end
 
+    -- Call any release functions and then register release
     Hotkey.onScriptingButtonUp = function(index, playerColor)
         if playerColor ~= 'Grey' then
-            if Hotkey.map[Hotkey.stateTable[playerColor] .. 'u'] then
-                for _,handler in pairs(Hotkey.map[Hotkey.stateTable[playerColor]]) do
+            if Hotkey.map[Hotkey.stateTable[playerColor] .. 'U'] then
+                for _,handler in pairs(Hotkey.map[Hotkey.stateTable[playerColor] .. 'U']) do
                     handler(playerColor, 'up', index)
                 end
             end
             Hotkey.ReleaseButton(index, playerColor)
         end
     end
-
+    
+    -- Hook into event functions, use EventSub if present
     if package.loaded['EventSub'] then
         EventSub.Register('onScriptingButtonDown', Hotkey.onScriptingButtonDown)
         EventSub.Register('onScriptingButtonUp', Hotkey.onScriptingButtonUp)
@@ -46,8 +49,9 @@ if not package.loaded['Hotkey'] then
         end
     end
 
+    -- Amount of available buttons
     Hotkey.keyCount = 10
-
+    -- Create a string representing press combination for easy comparision
     Hotkey.PressString = function(combination)
         local out = ''
         for k=1,Hotkey.keyCount do
@@ -61,8 +65,8 @@ if not package.loaded['Hotkey'] then
         return out
     end
 
-    Hotkey.ResetStateTable = function()
-        Hotkey.stateTable =  {
+    -- Main table containing info on player keypresses
+    Hotkey.stateTable =  {
             ['White'] = Hotkey.PressString(),
             ['Brown'] = Hotkey.PressString(),
             ['Red'] = Hotkey.PressString(),
@@ -74,12 +78,12 @@ if not package.loaded['Hotkey'] then
             ['Pink'] = Hotkey.PressString(),
             ['Purple'] = Hotkey.PressString(),
             ['Black'] = Hotkey.PressString()
-        }
-    end
-    Hotkey.ResetStateTable()
+    }
 
+    -- Map of combination strings to a table of handler functions
     Hotkey.map = {}
 
+    -- Add a handler function for a combination
     Hotkey.Bind = function(combination, handler, direction)
         assert(type(combination) == 'table', 'Hotkey.Bind: combination not a table!')
         assert(type(handler) == 'function', 'Hotkey.Bind: handler not a function!')
@@ -99,12 +103,13 @@ if not package.loaded['Hotkey'] then
         end
     end
 
+    -- Register button press in state tables
     Hotkey.PressButton = function(index, playerColor)
         if Hotkey.stateTable then
             Hotkey.stateTable[playerColor] = Hotkey.stateTable[playerColor]:sub(1, index-1) .. '+' ..  Hotkey.stateTable[playerColor]:sub(index+1, -1)
-            print(Hotkey.stateTable[playerColor])
         end
     end
+    -- Register button release in state tables
     Hotkey.ReleaseButton = function(index, playerColor)
         if Hotkey.stateTable then
             Hotkey.stateTable[playerColor] = Hotkey.stateTable[playerColor]:sub(1, index-1) .. '-' ..  Hotkey.stateTable[playerColor]:sub(index+1, -1)

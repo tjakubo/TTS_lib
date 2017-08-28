@@ -3,6 +3,9 @@ This library allows you to define scripting button combination (of one or more) 
 Keep in mind you still have to set scripting buttons yourself in configuration first - scripts can't access that.
 Button combinations are tables with button indexes (numbers, 1-10). Order of pressing a combination doesn't matter (you can make it matter on your end easily).
 Multiple functions can be bound to the same combination, they are never replaced (can be used safely from many modules).
+Hotkey presses are ignored for spectators.
+
+*Warning:* This library utilizes default scriting button events. If you redefine them between code inclusion and ``Hotkey.Bind`` call, it will silently break. Don't do this or use the EventSub library for sane event hook management.
 
 **Access table:** ``Hotkey``
 
