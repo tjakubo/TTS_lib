@@ -6,95 +6,166 @@
 -- Description and usage in README.md in this lib folder in repository
 -- ~~~~~~
 
--- Return value limited by min and max bounds
-math.clamp = function(var, min, max)
-    if min and var < min then
-        return min
-    elseif max and var > max then
-        return max
-    end
-    return var
-end
+if not package.loaded['Util'] then
 
--- Sign function, zero for zero
-math.sgn = function(arg)
-    if arg < 0 then
-        return -1
-    elseif arg > 0 then
-        return 1
-    end
-    return 0
-end
+    package.loaded['Util'] = true
 
--- Round to decPlaces decimal places
--- if decPlaces nil round to nearest integer
-math.round = function(arg, decPlaces)
-    if decPlaces == nil then decPlaces = 0 end
-    if decPlaces == 0 then
-        frac = arg - math.floor(arg)
-        if frac >= 0.5 then
-            return math.ceil(arg)
+    -- Return value limited by min and max bounds
+    math.clamp = function(var, min, max)
+        if min and var < min then
+            return min
+        elseif max and var > max then
+            return max
+        end
+        return var
+    end
+
+    -- Sign function, zero for zero
+    math.sgn = function(arg)
+        if arg < 0 then
+            return -1
+        elseif arg > 0 then
+            return 1
+        end
+        return 0
+    end
+
+    -- Round to decPlaces decimal places
+    -- if decPlaces nil round to nearest integer
+    math.round = function(arg, decPlaces)
+        if decPlaces == nil then decPlaces = 0 end
+        if decPlaces == 0 then
+            frac = arg - math.floor(arg)
+            if frac >= 0.5 then
+                return math.ceil(arg)
+            else
+                return math.floor(arg)
+            end
         else
-            return math.floor(arg)
+            local mult = 10^(decPlaces or 0)
+            return math.floor(arg * mult + 0.5) / mult
         end
-    else
-        local mult = 10^(decPlaces or 0)
-        return math.floor(arg * mult + 0.5) / mult
     end
-end
 
--- Check if table is empty
-table.empty = function(tab)
-    return (next(tab) == nil)
-end
-
--- Shallow table copy
--- Does not include metatables
-table.shallowcopy = function(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in pairs(orig) do
-            copy[orig_key] = orig_value
-        end
-    else
-        copy = orig
+    -- Check if table is empty
+    table.empty = function(tab)
+        return (next(tab) == nil)
     end
-    return copy
-end
 
--- Deep table copy
--- Includes metatables, avoids __pairs, recursive
-table.deepcopy = function(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[table.deepcopy(orig_key)] = table.deepcopy(orig_value)
+    -- Shallow table copy
+    -- Does not include metatables
+    table.shallowcopy = function(orig)
+        local orig_type = type(orig)
+        local copy
+        if orig_type == 'table' then
+            copy = {}
+            for orig_key, orig_value in pairs(orig) do
+                copy[orig_key] = orig_value
+            end
+        else
+            copy = orig
         end
-        if getmetatable(orig) then
-            setmetatable(copy, table.deepcopy(getmetatable(orig)))
-        end
-    else
-        copy = orig
+        return copy
     end
-    return copy
-end
 
--- Check if string begins with the argument (no regex)
-string.beginswith = function(str, prefix)
-    return (str:sub(1, prefix:len()) == prefix)
-end
-string.startswith = string.beginswith
+    -- Deep table copy
+    -- Includes metatables, avoids __pairs, recursive
+    table.deepcopy = function(orig)
+        local orig_type = type(orig)
+        local copy
+        if orig_type == 'table' then
+            copy = {}
+            for orig_key, orig_value in next, orig, nil do
+                copy[table.deepcopy(orig_key)] = table.deepcopy(orig_value)
+            end
+            if getmetatable(orig) then
+                setmetatable(copy, table.deepcopy(getmetatable(orig)))
+            end
+        else
+            copy = orig
+        end
+        return copy
+    end
 
--- Check if the string ends with the argument (no regex)
-string.endswith = function(str, prefix)
-    return (str:sub(-1*prefix:len(), -1) == prefix)
-end
+    -- Elements count
+    -- Unlike #table, also counts non-number keyed values
+    table.size = function(tab)
+        local count = 0
+        for _ in pairs(tab) do
+            count = count + 1
+        end
+        return count
+    end
 
--- CHeck if string contains argument anywhere in it (no regex)
-string.contains = function(str, query)
-    return (str:find(query, 1, true) ~= nil)
+    -- Return the element that return minimal value from eval function
+    -- Only iterates through numeric keys part
+    table.min = function(tab, eval)
+        if not tab[1] then return end
+        local min = { el = tab[1], val = eval(tab[1]) }
+        for k=2,#tab do
+            local val = eval(tab[k])
+            if val < min.val then
+                min.val = val
+                min.el = tab[k]
+            end
+        end
+        return min.el
+    end
+
+    -- Same as table.min, but takes the maximum
+    table.max = function(tab, eval)
+        local function invEval(el)
+            return -1*eval(el)
+        end
+        return table.min(tab, invEval)
+    end
+
+    -- Return those values in tab that return true from valid function
+    table.sieve = function(tab, valid)
+        local filtered = {}
+        for k,v in ipairs(tab) do
+            if valid(v) then
+                if type(k) == 'number' then
+                    table.insert(filtered, v)
+                else
+                    filtered[k] = v
+                end
+            end
+        end
+        return filtered
+    end
+
+    -- Shallow table print
+    table.print = function(tab, prefix)
+        prefix = prefix or 'Table'
+        print(prefix .. ':')
+        local function stringify(v)
+            local str = tostring(v)
+            if type(v) == 'string' then
+                str = '\'' .. str .. '\''
+            end
+            return str
+        end
+        for k,v in pairs(tab) do
+            print('   [' .. stringify(k) .. '] -> ' .. stringify(v))
+        end
+        print('')
+    end
+
+    -- Check if string begins with the argument (no regex)
+    string.beginswith = function(str, prefix)
+        return (str:sub(1, prefix:len()) == prefix)
+    end
+    string.startswith = string.beginswith
+
+    -- Check if the string ends with the argument (no regex)
+    string.endswith = function(str, prefix)
+        return (str:sub(-1*prefix:len(), -1) == prefix)
+    end
+
+    -- CHeck if string contains argument anywhere in it (no regex)
+    string.contains = function(str, query)
+        return (str:find(query, 1, true) ~= nil)
+    end
+
 end
