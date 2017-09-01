@@ -6,9 +6,9 @@
 -- Description and usage in README.md in this lib folder in repository
 -- ~~~~~~
 
-if not package.loaded['Vect'] then
+if not package.loaded['Vector'] then
     Vect = {}
-    package.loaded['Vect'] = Vect
+    package.loaded['Vector'] = Vect
 
     -- Sum of two vectors (of any size)
     Vect.Sum = function(vec1, vec2)
