@@ -1,0 +1,75 @@
+if not package.loaded['ObjType'] then
+
+    if not package.loaded['Vector'] then
+        error('ObjType package: depends on Vector package (not loaded)')
+    end
+    if not package.loaded['Util'] then
+        error('ObjType package: depends on Util package (not loaded)')
+    end
+
+    ObjType = {}
+    package.loaded['ObjType'] = ObjType
+
+    ObjType.types = {}
+    ObjType.AddType = function(typeName, fcn)
+        ObjType.types[typeName] = fcn
+    end
+    ObjType.AddType('any', function() return true end)
+
+    ObjType.IsOfType = function(obj, typeName)
+        if not typeName or not ObjType.types[typeName] then
+            error('ObjType.IsOfType: queried type \'' .. typeName .. '\' not defined')
+        end
+        return ObjType.types[typeName](obj)
+    end
+    ObjType.GetType = function(obj)
+        for type, typeFcn in pairs(ObjType.types) do
+            if typeFcn(obj) then
+                return type
+            end
+        end
+        return nil
+    end
+    ObjType.GetAllTypes = function(obj)
+        local types = {}
+        for type, typeFcn in pairs(ObjType.types) do
+            if typeFcn(obj) then
+                types[type] = true
+            end
+        end
+        return types
+    end
+
+    ObjType.SphereCast = function(center, distance)
+        local hits = Physics.cast({
+            origin = Vect.Sum(center, {0, -0.5*distance - center[2], 0}),
+            direction = {0, distance/500, 0},
+            type = 2,
+            size = {distance, distance, distance},
+            debug = false
+        })
+        local nearData = {}
+        for k, hitData in pairs(hits) do
+            table.insert(nearData, {obj = hitData.hit_object, dist=Vect.Distance(hitData.point, center)})-- hitData.distance})
+        end
+        return nearData
+    end
+
+    ObjType.GetNearestOfType = function(centerPosObj, objType, excl)
+        local nearOfType = ObjType.GetNearOfType(centerPosObj, objType, 100, excl)
+        return table.min(nearOfType, function(el) return el.dist end)
+    end
+    ObjType.GetNearOfType = function(centerPosObj, objType, maxDist, excl)
+        excl = excl or {}
+        maxDist = maxDist or 100
+        assert(type(objType) == 'string', 'Obj.GetNearOfType: search type not provided')
+        local centerPos = centerPosObj
+        if type(centerPosObj) == 'userdata' then
+            excl[centerPosObj] = true
+            centerPos = centerPosObj.getPosition()
+        end
+        local nearData = ObjType.SphereCast(centerPos, maxDist)
+        nearData = table.sieve(nearData, function(el) return (not excl[el.obj] and ObjType.IsOfType(el.obj, objType)) end)
+        return nearData
+    end
+end
