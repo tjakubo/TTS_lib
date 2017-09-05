@@ -109,7 +109,7 @@ if not package.loaded['Util'] then
                 min.el = tab[k]
             end
         end
-        return min.el
+        return min.el, min.val
     end
 
     -- Same as table.min, but takes the maximum
@@ -117,7 +117,8 @@ if not package.loaded['Util'] then
         local function invEval(el)
             return -1*eval(el)
         end
-        return table.min(tab, invEval)
+        local el, min = table.min(tab, invEval)
+        return el, -1*min
     end
 
     -- Return those values in tab that return true from valid function
@@ -150,6 +151,15 @@ if not package.loaded['Util'] then
             print('   [' .. stringify(k) .. '] -> ' .. stringify(v))
         end
         print('')
+    end
+
+    -- Apply a function on each table element
+    table.process = function(tab, fcn)
+        local out = {}
+        for k,v in pairs(tab) do
+            out[k] = fcn(v)
+        end
+        return out
     end
 
     -- Check if string begins with the argument (no regex)

@@ -16,6 +16,7 @@ Added ``myString.fun(string_arg, ...)`` methods can be called just like the rest
 | ``table.min (Table, Function)`` | ``Variable``| return table element that returns minimal value passed to the provided function |
 | ``table.max (Table, Function)`` | ``Variable``| same as table.min, but one that returns maximum value from provided function |
 | ``table.sieve (Table, Function)`` | ``Table`` | table with only those elements that return true passed to function |
+| ``table.process (Table, Function)`` | ``Table`` | with all the elements passed through provided function |
 | ``table.print (Table, String)`` | ``nil`` | console output: print the table contents (shallow) prefixed by provided string |
 | ``myString:beginswith (String)`` | ``Bool`` | true if myString begins with parameter string (no pattern) |
 | ``myString:startswith (String)`` | ``Bool`` | same as myString:beginswith(...) |
