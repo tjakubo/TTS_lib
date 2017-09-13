@@ -162,15 +162,27 @@ if not package.loaded['Vector'] then
     end
 
     -- Angle between vectors in radians
-    -- If second argument not provided, calculate typical angle (from zero vector)
+    -- If second argument not provided, calculate typical angle (from [1, 0, 0, ...] )
     Vect.Angle = function(vec1, vec2)
         if vec2 == nil then
-            vec2 = {}
-            for k = 1, #vec1, 1 do
+            vec2 = {1}
+            for k = 2, #vec1, 1 do
                 table.insert(vec2, 0)
             end
         end
         return math.acos( Vect.DotProd(vec1, vec2) / (Vect.Norm(vec1)*Vect.Norm(vec2)) )
+    end
+
+    -- Angle between vectors in radians, in plane
+    -- If second argument not provided, calculate typical angle (from [1, 0, 0, ...] )
+    Vect.Angle2D = function(vec1, vec2)
+        if vec2 == nil then
+            vec2 = {1}
+            for k = 2, #vec1, 1 do
+                table.insert(vec2, 0)
+            end
+        end
+        return ( math.atan2(vec2[3], vec2[1]) - math.atan2(vec1[3], vec1[1]) )
     end
 
     -- Same as Vect.Angle but in degrees
@@ -178,12 +190,22 @@ if not package.loaded['Vector'] then
         return math.deg(Vect.Angle(vec1, vec2))
     end
 
+    -- Same as Vect.Angle2D but in degrees
+    Vect.AngleDeg2D = function(vec1, vec2)
+        return math.deg(Vect.Angle2D(vec1, vec2))
+    end
+
     -- Vector pointing from one position to another
     Vect.Between = function(fromVec, toVec)
         return Vect.Sum(toVec, Vect.Scale(fromVec, -1))
     end
 
-    -- Sebtract vector from another
+    -- Vector pointing between two points
+    Vect.Middle = function(p1, p2)
+        return Vect.Sum(p1, Vect.Scale(Vect.Between(p1, p2), 0.5))
+    end
+
+    -- Subtract vector from another
     Vect.Sub = function(vec1, vec2)
         return Vect.Sum(vec1, Vect.Scale(vec2, -1))
     end
