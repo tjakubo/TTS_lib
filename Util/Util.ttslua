@@ -52,6 +52,19 @@ if not package.loaded['Util'] then
         return (next(tab) == nil)
     end
 
+    -- Mash together two tables
+    table.join = function(tab1, tab2)
+        local out = {}
+        for k=1,#tab1 do
+            out[k] = tab1[k]
+        end
+        local off = #tab1
+        for k=1,#tab2 do
+            out[k+off] = tab2[k]
+        end
+        return out
+    end
+
     -- Shallow table copy
     -- Does not include metatables
     table.shallowcopy = function(orig)
@@ -123,17 +136,33 @@ if not package.loaded['Util'] then
 
     -- Return those values in tab that return true from valid function
     table.sieve = function(tab, valid)
-        local filtered = {}
+        local passed = {}
+        local rejected = {}
         for k,v in ipairs(tab) do
             if valid(v) then
                 if type(k) == 'number' then
-                    table.insert(filtered, v)
+                    table.insert(passed, v)
                 else
-                    filtered[k] = v
+                    passed[k] = v
+                end
+            else
+                if type(k) == 'number' then
+                    table.insert(rejected, v)
+                else
+                    rejected[k] = v
                 end
             end
         end
-        return filtered
+        return passed, rejected
+    end
+
+    -- Try to find en element in the table, return key if found, nil otherwise
+    table.find = function(tab, el)
+        for k,v in pairs(tab) do
+            if v == el then
+                return k
+            end
+        end
     end
 
     -- Shallow table print
