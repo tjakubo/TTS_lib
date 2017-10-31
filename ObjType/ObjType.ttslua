@@ -67,7 +67,7 @@ if not package.loaded['ObjType'] then
             type = 3,
             size = size,
             orientation = orientation,
-            debug = true
+            debug = false
         })
         local nearData = {}
         for k, hitData in pairs(hits) do

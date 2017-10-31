@@ -182,6 +182,30 @@ if not package.loaded['Util'] then
         print('')
     end
 
+    -- Deep table print (sensitive to cycles!)
+    table.print_r = function(tab, prefix, indent)
+        prefix = prefix or 'Table'
+        local indent = indent or 1
+        print(prefix .. ':')
+        local function stringify(v)
+            local str = tostring(v)
+            if type(v) == 'string' then
+                str = '\'' .. str .. '\''
+            end
+            return str
+        end
+        local indentStr = string.rep('    ', indent)
+        for k,v in pairs(tab) do
+            print(indentStr .. '[' .. stringify(k) .. '] -> ' .. stringify(v))
+            if type(v) == 'table' then
+                table.print_r(v, indentStr .. stringify(v), indent+1)
+            end
+        end
+        if indent == 1 then
+            print('')
+        end
+    end
+
     -- Apply a function on each table element
     table.process = function(tab, fcn)
         local out = {}

@@ -94,7 +94,7 @@ if not package.loaded['Vector'] then
             pos1 = pos1.getPosition()
         end
         if type(pos2) == 'userdata' then
-            pos2 = pos1.getPosition()
+            pos2 = pos2.getPosition()
         end
         return Vect.Length(Vect.Between(pos1, pos2))
     end
@@ -113,6 +113,22 @@ if not package.loaded['Vector'] then
         end
         out = out:sub(1,-3) .. ']'
         print(out)
+    end
+    -- Round to decPlaces decimal places
+    -- if decPlaces nil round to nearest integer
+    math.round = function(arg, decPlaces)
+        if decPlaces == nil then decPlaces = 0 end
+        if decPlaces == 0 then
+            frac = arg - math.floor(arg)
+            if frac >= 0.5 then
+                return math.ceil(arg)
+            else
+                return math.floor(arg)
+            end
+        else
+            local mult = 10^(decPlaces or 0)
+            return math.floor(arg * mult + 0.5) / mult
+        end
     end
 
     -- Dot product
