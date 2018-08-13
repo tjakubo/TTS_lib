@@ -24,7 +24,7 @@ if not package.loaded['EventSub'] then
         -- Set the global event function to call each handler pasing its parameters
         _G[eventName] = function(...)
             for _,handler in ipairs(EventSub.subs[eventName]) do
-                handler(table.unpack({...}))
+                handler(...)
             end
         end
     end

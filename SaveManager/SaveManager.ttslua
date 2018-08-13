@@ -1,5 +1,9 @@
 if not package.loaded['SaveManager'] then
 
+    local function empty(t)
+        return next(t) ~= nil
+    end
+
     -- Require EventSub so we can hook into onLoad
     if not package.loaded['EventSub'] then
         error('SaveManager package: depends on EventSub package (not loaded)')
@@ -8,64 +12,63 @@ if not package.loaded['SaveManager'] then
 
     SaveManager = {}
     package.loaded['SaveManager'] = SaveManager
+    local SM = SaveManager
 
-    SaveManager.moduleList = {}
-    SaveManager.Register = function(key, saveFcn, restoreFcn)
-        assert(type(key) == 'string', 'SaveManager.Register: No table key provided!')
+    SM.moduleList = {}
+    SM.Register = function(saveFcn, restoreFcn)
         assert(type(saveFcn) == 'function', 'SaveManager.Register: No save function provided!')
         assert(type(restoreFcn) == 'function', 'SaveManager.Register: No restore function provided!')
 
-        if SaveManager.moduleList[key] then
-            error('SaveManager.Register: Key \'' .. key .. '\' already reserved!')
-        end
-        SaveManager.moduleList[key] = {save = saveFcn, restore = restoreFcn}
+        SM.moduleList[#SM.moduleList + 1] = {save = saveFcn, restore = restoreFcn}
     end
 
-    SaveManager.onLoad = function(saveData)
-        local saveTable = SaveManager.Decode(saveData)
-        if type(saveTable) ~= 'table' then print('skip') return end
+    SM.onLoad = function(saveData)
+        local saveTable = SM.Decode(saveData or '')
+        if type(saveTable) ~= 'table' then return end
         local responses = {}
-        for key,module in pairs(SaveManager.moduleList) do
-            if saveTable[key] and (not table.empty(saveTable[key]) ) then
-                local response = module.restore(saveTable[key])
+        for k,module in ipairs(SM.moduleList) do
+            local moduleSave = saveTable[tostring(k)]
+            if moduleSave ~= nil then
+                local response = module.restore(moduleSave)
                 if type(response) == 'string' then
                     table.insert(responses, response)
                 end
             end
         end
-        if not table.empty(responses) then
-            table.insert(responses, 1, 'Attempting to restore state...')
-        end
-        SaveManager.Notify(responses)
+        SM.Notify(responses)
     end
-    ES.Register('onLoad', SaveManager.onLoad)
+    if package.loaded['EventSub'] then
+        EventSub.Register('onLoad', SM.onLoad)
+    else
+        assert(onLoad == nil, 'SaveManager: onLoad event trigger already defined!')
+        function onLoad(...)
+            SM.onLoad(...)
+        end
+    end
 
     if type(onSave) == 'function' then
         error('SaveManager: onSave event trigger already defined!')
     end
     function onSave()
         local saveData = {}
-        for key,module in pairs(SaveManager.moduleList) do
-            local moduleSave = module.save()
-            if type(moduleSave) == 'table' and (not table.empty(moduleSave)) then
-                saveData[key] = moduleSave
-            end
+        for k,module in ipairs(SM.moduleList) do
+            saveData[tostring(k)] = module.save()
         end
-        return SaveManager.Encode(saveData)
+        return SM.Encode(saveData)
     end
 
-    SaveManager.Encode = function(dataTable)
+    SM.Encode = function(dataTable)
         return JSON.encode(dataTable)
     end
 
-    SaveManager.Decode = function(encodedData)
+    SM.Decode = function(encodedData)
         return JSON.decode(encodedData)
     end
 
-    SaveManager.Notify = function(responses)
-        if not table.empty(responses) then
+    SM.Notify = function(responses)
+        if not empty(responses) then
             printToAll(table.concat(responses, '\n'), {0.8, 0.1, 0.8})
         end
     end
-
+    
 end
