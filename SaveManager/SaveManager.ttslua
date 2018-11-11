@@ -1,13 +1,6 @@
 if not package.loaded['SaveManager'] then
 
-    local function empty(t)
-        return next(t) ~= nil
-    end
-
-    -- Require EventSub so we can hook into onLoad
-    if not package.loaded['EventSub'] then
-        error('SaveManager package: depends on EventSub package (not loaded)')
-    end
+    -- If ES is present, it will be used to hook into onLoad
     local ES = package.loaded['EventSub']
 
     SaveManager = {}
@@ -23,20 +16,27 @@ if not package.loaded['SaveManager'] then
     end
 
     SM.onLoad = function(saveData)
+        if SM.clearSaved then
+            saveData = ''
+        end
         local saveTable = SM.Decode(saveData or '')
         if type(saveTable) ~= 'table' then return end
         local responses = {}
         for k,module in ipairs(SM.moduleList) do
             local moduleSave = saveTable[tostring(k)]
-            if moduleSave ~= nil then
-                local response = module.restore(moduleSave)
-                if type(response) == 'string' then
+            if moduleSave then
+                local response = module.restore(unpack(moduleSave))
+                if response and type(response) == 'string' then
                     table.insert(responses, response)
                 end
             end
         end
         SM.Notify(responses)
+        if SM.userOnLoad then
+          SM.userOnLoad()
+        end
     end
+
     if package.loaded['EventSub'] then
         EventSub.Register('onLoad', SM.onLoad)
     else
@@ -52,7 +52,7 @@ if not package.loaded['SaveManager'] then
     function onSave()
         local saveData = {}
         for k,module in ipairs(SM.moduleList) do
-            saveData[tostring(k)] = module.save()
+            saveData[tostring(k)] = {module.save()}
         end
         return SM.Encode(saveData)
     end
@@ -66,9 +66,9 @@ if not package.loaded['SaveManager'] then
     end
 
     SM.Notify = function(responses)
-        if not empty(responses) then
+        if next(responses) then
             printToAll(table.concat(responses, '\n'), {0.8, 0.1, 0.8})
         end
     end
-    
+
 end
