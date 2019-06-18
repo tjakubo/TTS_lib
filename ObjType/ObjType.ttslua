@@ -8,9 +8,6 @@
 
 if not package.loaded['ObjType'] then
 
-    if not package.loaded['Vector'] then
-        error('ObjType package: depends on Vector package (not loaded)')
-    end
     if not package.loaded['Util'] then
         error('ObjType package: depends on Util package (not loaded)')
     end
@@ -46,7 +43,7 @@ if not package.loaded['ObjType'] then
     -- Cast a regular sphere and return hit objects
     ObjType.SphereCast = function(center, distance)
         local hits = Physics.cast({
-            origin = Vect.Sum(center, {0, -1.1*distance, 0}),
+            origin = {center[1], center[2] - 1.1*distance, center[3]},
             direction = {0, distance/500, 0},
             type = 2,
             size = {distance*2, distance*2, distance*2},
@@ -55,14 +52,13 @@ if not package.loaded['ObjType'] then
         local nearData = {}
         for k, hitData in pairs(hits) do
             table.insert(nearData, hitData.hit_object)
-            --table.insert(nearData, {obj = hitData.hit_object, dist=Vect.Distance(hitData.point, center)})
         end
         return nearData
     end
     -- Cast a box of given size and orientation and return hit objects
     ObjType.BoxCast = function(center, orientation, size)
         local hits = Physics.cast({
-            origin = Vect.Sum(center, {0, -1.1*size[2], 0}),
+            origin = {center[1], center[2] - 1.1*size[2], center[3]},
             direction = {0, size[2]/200, 0},
             type = 3,
             size = size,
@@ -72,9 +68,12 @@ if not package.loaded['ObjType'] then
         local nearData = {}
         for k, hitData in pairs(hits) do
             table.insert(nearData, hitData.hit_object)
-            --table.insert(nearData, {obj = hitData.hit_object, dist=Vect.Distance(hitData.point, center)})
         end
         return nearData
+    end
+
+    local function sqrDistance(v1, v2)
+        return (v1[1]-v2[1])^2 + (v1[3]-v2[3])^2
     end
 
     -- Get the object matching provided type, nearest to position/object in some radius
@@ -91,7 +90,7 @@ if not package.loaded['ObjType'] then
             centerPos = centerPosObj.getPosition()
         end
         local nearOfType = ObjType.GetNearOfType(centerPos, objType, maxDist, excl)
-        return table.min(nearOfType, function(obj) return Vect.Distance(cenerPos, obj) end)
+        return table.min(nearOfType, function(obj) return sqrDistance(centerPos, obj.getPosition()) end)
     end
 
     -- Get all objects in given radius matching given type
