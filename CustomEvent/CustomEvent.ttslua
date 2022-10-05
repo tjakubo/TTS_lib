@@ -18,26 +18,19 @@ if not package.loaded['CustomEvent'] then
     EventSub.triggerQueue = {}
     -- Process queued events
     EventSub.PushQueued = function()
-        __temp = function()
-            local subQueue = EventSub.subQueue
-            EventSub.subQueue = nil
-            for k,args in ipairs(subQueue) do
-                CustomEvent.Subscribe(table.unpack(args))
-            end
-            -- To ensure subs come before triggers, wait a few frames
-            local wait = 3
-            for k=1,10 do
-                coroutine.yield(0)
-            end
+        local subQueue = EventSub.subQueue
+        EventSub.subQueue = nil
+        for k,args in ipairs(subQueue) do
+            CustomEvent.Subscribe(table.unpack(args))
+        end
+        -- To ensure subs come before triggers, wait a few frames
+        Wait.frames(function()
             local triggerQueue = EventSub.triggerQueue
             EventSub.triggerQueue = nil
             for k,args in ipairs(triggerQueue) do
                 CustomEvent.TriggerEvent(table.unpack(args))
             end
-            __temp = nil
-            return 1
-        end
-        startLuaCoroutine(self, '__temp')
+        end, 10)
     end
     ES.Register('onLoad', EventSub.PushQueued)
 
