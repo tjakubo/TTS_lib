@@ -43,10 +43,10 @@ if not package.loaded['ObjType'] then
     -- Cast a regular sphere and return hit objects
     ObjType.SphereCast = function(center, distance)
         local hits = Physics.cast({
-            origin = {center[1], center[2] - 1.1*distance, center[3]},
-            direction = {0, distance/500, 0},
+            origin = center - Vector(0, 1.1*distance, 0),
+            direction = Vector(0, distance/500, 0),
             type = 2,
-            size = {distance*2, distance*2, distance*2},
+            size = Vector(distance, distance, distance):scale(2),
             debug = false
         })
         local nearData = {}
@@ -57,9 +57,10 @@ if not package.loaded['ObjType'] then
     end
     -- Cast a box of given size and orientation and return hit objects
     ObjType.BoxCast = function(center, orientation, size)
+        local distance = size.y
         local hits = Physics.cast({
-            origin = {center[1], center[2] - 1.1*size[2], center[3]},
-            direction = {0, size[2]/200, 0},
+            origin = center - Vector(0, 1.1*distance, 0),
+            direction = Vector(0, distance/200, 0),
             type = 3,
             size = size,
             orientation = orientation,
@@ -85,12 +86,13 @@ if not package.loaded['ObjType'] then
     -- Return: nearestObject, distance
     ObjType.GetNearestOfType = function(centerPosObj, maxDist, objType, excl)
         local centerPos = centerPosObj
+        local objPos = obj.getPosition()
         if type(centerPosObj) == 'userdata' then
             excl[centerPosObj] = true
-            centerPos = centerPosObj.getPosition()
+            centerPos = objPos
         end
         local nearOfType = ObjType.GetNearOfType(centerPos, objType, maxDist, excl)
-        return table.min(nearOfType, function(obj) return sqrDistance(centerPos, obj.getPosition()) end)
+        return table.min(nearOfType, function(obj) return centerPos:sqrDistance(objPos) end)
     end
 
     -- Get all objects in given radius matching given type
