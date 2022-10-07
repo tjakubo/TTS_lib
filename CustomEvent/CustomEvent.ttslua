@@ -1,17 +1,12 @@
-function name()
-    if self then return self.getName() else return 'Global' end
-end
-
 if not package.loaded['CustomEvent'] then
-
+    local CustomEvent = {}
+    package.loaded['CustomEvent'] = CustomEvent
+    
     -- Require EventSub so we can hook into onLoad
     if not package.loaded['EventSub'] then
         error('CustomEvent package: depends on EventSub package (not loaded)')
     end
     local ES = package.loaded['EventSub']
-
-    CustomEvent = {}
-    package.loaded['CustomEvent'] = CustomEvent
 
     -- Event queues for before onLoad (Global doesn't exist yet then)
     EventSub.subQueue = {}
@@ -100,4 +95,7 @@ if not package.loaded['CustomEvent'] then
             end
         end
     end
+    return CustomEvent
+else
+    return package.loaded['CustomEvent']
 end

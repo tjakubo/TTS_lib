@@ -207,13 +207,14 @@ if not package.loaded['Util'] then
     end
 
     -- Apply a function on each table element
-    table.process = function(tab, fcn)
+    table.map = function(tab, fcn)
         local out = {}
         for k,v in pairs(tab) do
             out[k] = fcn(v)
         end
         return out
     end
+    
 
     -- Check if string begins with the argument (no regex)
     string.beginswith = function(str, prefix)

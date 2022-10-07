@@ -120,4 +120,8 @@ if not package.loaded['Hotkey'] then
             Hotkey.stateTable[playerColor][index] = 0
         end
     end
+    
+    return Hotkey
+else
+    return package.loaded['Hotkey']
 end

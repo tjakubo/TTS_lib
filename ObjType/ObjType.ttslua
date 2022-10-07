@@ -7,13 +7,12 @@
 -- ~~~~~~
 
 if not package.loaded['ObjType'] then
-
+    local ObjType = {}
+    package.loaded['ObjType'] = ObjType
+    
     if not package.loaded['Util'] then
         error('ObjType package: depends on Util package (not loaded)')
     end
-
-    ObjType = {}
-    package.loaded['ObjType'] = ObjType
 
     ObjType.types = {}
     -- Add a type definition
@@ -140,4 +139,8 @@ if not package.loaded['ObjType'] then
         boxData = table.sieve(boxData, function(obj) return (not excl[obj] and ObjType.IsOfType(obj, objType)) end)
         return boxData
     end
+    
+    return ObjType
+else
+    return package.loaded['ObjType']
 end
