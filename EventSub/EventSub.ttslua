@@ -8,7 +8,8 @@
 
 if not package.loaded['EventSub'] then
 
-    EventSub = {}
+    local EventSub = {}
+    
     package.loaded['EventSub'] = EventSub
     event_sub = EventSub -- alias
 
@@ -37,4 +38,8 @@ if not package.loaded['EventSub'] then
         end
         table.insert(EventSub.subs[eventName], handler)
     end
+    
+    return EventSub
+else
+    return package.loaded['EventSub']
 end
